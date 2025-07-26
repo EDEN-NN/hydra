@@ -1,0 +1,75 @@
+package entity
+
+import (
+	"errors"
+	primitive "go.mongodb.org/mongo-driver/bson/primitive"
+	"net/mail"
+	"time"
+)
+
+type User struct {
+	ID        primitive.ObjectID `json:"id" bson:"_id"`
+	Username  string             `json:"username" bson:"username"`
+	Password  string             `json:"password" bson:"password"`
+	Email     string             `json:"email" bson:"email"`
+	Name      string             `json:"name" bson:"name"`
+	CreatedAt time.Time          `json:"createdAt" bson:"createdAt"`
+	UpdatedAt time.Time          `json:"updatedAt" bson:"updatedAt"`
+}
+
+func (user *User) IsValid() []error {
+
+	var errs []error
+
+	if len(user.Username) < 6 {
+		errs = append(errs, errors.New("username should have more than 6 characters"))
+	}
+
+	if len(user.Password) < 8 {
+		errs = append(errs, errors.New("your password need to be greater than 8 characters"))
+	}
+
+	if len(user.Name) < 3 {
+		errs = append(errs, errors.New("username should be equal or greater than 3 characters"))
+	}
+
+	_, err := mail.ParseAddress(user.Email)
+
+	if err != nil {
+		errs = append(errs, errors.New("invalid email"))
+	}
+	return errs
+}
+
+func CreateUser(username, password, email, name string) (*User, []error) {
+	newUser := &User{
+		ID:        primitive.NewObjectID(),
+		Username:  username,
+		Password:  password,
+		Email:     email,
+		Name:      name,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	err := newUser.IsValid()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return newUser, nil
+}
+
+func (user *User) ChangeName(name string) (*User, []error) {
+	user.Name = name
+	user.UpdatedAt = time.Now()
+
+	err := user.IsValid()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
