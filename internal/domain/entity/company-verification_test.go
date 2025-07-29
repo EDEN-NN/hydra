@@ -11,5 +11,4 @@ func TestCompanyVerification_TestCreateCompanyVerification(t *testing.T) {
 	companyVerification := CreateCompanyVerification(company.ID.String())
 
 	assert.NotNil(t, companyVerification)
-
 }

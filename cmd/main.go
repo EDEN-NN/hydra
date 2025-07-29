@@ -2,26 +2,47 @@ package main
 
 import (
 	"context"
-	"github.com/EDEN-NN/hydra-api/infra/database/mongodb"
-	"github.com/gin-gonic/gin"
+	"errors"
+	"github.com/EDEN-NN/hydra-api/internal/di"
+	"log"
+	"net/http"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func main() {
 
-	client, err := mongodb.Connect()
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	container, err := di.NewContainer(ctx)
 	if err != nil {
-		panic(err)
+		log.Fatalf("API fail to start: %v", err)
 	}
 
-	defer client.Disconnect(context.Background())
+	srv := &http.Server{
+		Addr:         container.AppConfig.ServerPort,
+		Handler:      container.Router,
+		ReadTimeout:  container.AppConfig.ReadTimeout,
+		WriteTimeout: container.AppConfig.WriteTimeout,
+	}
 
-	router := gin.Default()
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("Server down: %v", err)
+		}
+	}()
 
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	<-ctx.Done()
+	log.Fatalf("Shutting down...")
 
-	router.Run(":8080")
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		log.Printf("Shutdown error: %v", err)
+	} else {
+		log.Println("Server shutting down correctly")
+	}
 }
