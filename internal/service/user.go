@@ -35,5 +35,5 @@ func (service *UserService) Create(ctx context.Context, data *dto.CreateUserInpu
 		return nil, errors.New("could not save user")
 	}
 
-	return &result, nil
+	return result, nil
 }

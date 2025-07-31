@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"github.com/EDEN-NN/hydra-api/internal/domain/entity"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 )
@@ -18,14 +18,15 @@ func CreateUserRepository(db *mongo.Database) *UserRepository {
 	}
 }
 
-func (repository *UserRepository) Create(data *entity.User) (string, error) {
+func (repository *UserRepository) Create(data *entity.User) (*string, error) {
 
 	result, err := repository.DB.Collection("users").InsertOne(context.Background(), &data)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
+	userID := result.InsertedID.(primitive.ObjectID).Hex()
 	log.Printf("new document inserted: %s", result.InsertedID)
 
-	return fmt.Sprintln(result.InsertedID), nil
+	return &userID, nil
 }
