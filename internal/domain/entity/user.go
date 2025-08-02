@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/EDEN-NN/hydra-api/internal/apperrors"
 	primitive "go.mongodb.org/mongo-driver/bson/primitive"
+	"golang.org/x/crypto/bcrypt"
 	"net/mail"
 	"time"
 )
@@ -71,4 +72,21 @@ func (user *User) ChangeName(name string) (*User, error) {
 	}
 
 	return user, nil
+}
+
+func GenerateHashPassword(password string) (string, error) {
+	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", apperrors.NewError(apperrors.EINTERNAL, "error while creating or updating user", errors.New("fail trying to create a hashed password"))
+	}
+
+	return string(hashedBytes), nil
+}
+
+func CompareHash(password, hashedPassword string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	if err != nil {
+		return apperrors.NewConflictError("user", apperrors.NewError(apperrors.ECONFLICT, "username or password invalid", err))
+	}
+	return nil
 }

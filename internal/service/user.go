@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"github.com/EDEN-NN/hydra-api/infra/repository"
 	"github.com/EDEN-NN/hydra-api/internal/domain/entity"
 	"github.com/EDEN-NN/hydra-api/pkg/dto"
@@ -17,10 +16,11 @@ func CreateUserService(repository *repository.UserRepository) *UserService {
 	}
 }
 
-func (service *UserService) Create(ctx context.Context, data *dto.CreateUserInput) (*string, error) {
+func (service *UserService) Create(data *dto.CreateUserInput) (*string, error) {
+	hashedPassword, _ := entity.GenerateHashPassword(data.Password)
 	user, err := entity.CreateUser(
 		data.Username,
-		data.Password,
+		hashedPassword,
 		data.Email,
 		data.Name,
 	)
@@ -35,4 +35,22 @@ func (service *UserService) Create(ctx context.Context, data *dto.CreateUserInpu
 	}
 
 	return result, nil
+}
+
+func (service *UserService) FindByUsername(username string) (*dto.UserOutput, error) {
+	user, err := service.Repository.FindByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	userOutput := &dto.UserOutput{
+		ID:        user.ID.Hex(),
+		Username:  user.Username,
+		Email:     user.Email,
+		Name:      user.Name,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+
+	return userOutput, nil
 }

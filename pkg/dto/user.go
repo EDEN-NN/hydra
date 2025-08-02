@@ -9,10 +9,9 @@ type CreateUserInput struct {
 	Name     string `json:"name" binding:"required,min=3"`
 }
 
-type CreateUserOutput struct {
+type UserOutput struct {
 	ID        string    `json:"id"`
 	Username  string    `json:"username"`
-	Password  string    `json:"password"`
 	Email     string    `json:"email"`
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"createdAt"`
