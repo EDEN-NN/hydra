@@ -6,6 +6,7 @@ import (
 	"github.com/EDEN-NN/hydra-api/infra/database/mongodb"
 	"github.com/EDEN-NN/hydra-api/infra/repository"
 	"github.com/EDEN-NN/hydra-api/infra/web/handler"
+	"github.com/EDEN-NN/hydra-api/infra/web/middleware"
 	"github.com/EDEN-NN/hydra-api/infra/web/routes"
 	"github.com/EDEN-NN/hydra-api/internal/service"
 	"github.com/gin-gonic/gin"
@@ -32,6 +33,7 @@ func NewContainer(ctx context.Context) (*Container, error) {
 	userHandler := handler.CreateUserHandler(userService)
 
 	router := gin.Default()
+	router.Use(middleware.ErrorHandler())
 	routes.SetupUserRoutes(router, userHandler)
 
 	return &Container{

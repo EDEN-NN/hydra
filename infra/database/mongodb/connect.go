@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"github.com/EDEN-NN/hydra-api/internal/apperrors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -18,7 +19,7 @@ func Connect() (*mongo.Database, error) {
 
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
-		panic(err)
+		panic(apperrors.NewError(apperrors.EINTERNAL, "fail to connect to mongodb", err))
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5+time.Second)
@@ -26,8 +27,8 @@ func Connect() (*mongo.Database, error) {
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		log.Fatalf("Failed to ping MongoDB: %v", err)
-		return nil, err
+		log.Fatalf("Failed to ping MongoDB")
+		return nil, apperrors.NewError(apperrors.EINTERNAL, "fail to comunicate to mongo", err)
 	}
 
 	log.Println("Successfully connected to MongoDB!")
@@ -47,7 +48,7 @@ func ConnectTest() (*mongo.Database, error) {
 
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
-		panic(err)
+		panic(apperrors.NewError(apperrors.EINTERNAL, "fail to connect to mongodb", err))
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5+time.Second)
@@ -55,8 +56,8 @@ func ConnectTest() (*mongo.Database, error) {
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		log.Fatalf("Failed to ping MongoDB: %v", err)
-		return nil, err
+		log.Fatalf("Failed to ping MongoDB")
+		return nil, apperrors.NewError(apperrors.EINTERNAL, "fail to comunicate to mongo", err)
 	}
 
 	log.Println("Successfully connected to MongoDB!")

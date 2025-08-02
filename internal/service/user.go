@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"github.com/EDEN-NN/hydra-api/infra/repository"
 	"github.com/EDEN-NN/hydra-api/internal/domain/entity"
 	"github.com/EDEN-NN/hydra-api/pkg/dto"
@@ -19,20 +18,20 @@ func CreateUserService(repository *repository.UserRepository) *UserService {
 }
 
 func (service *UserService) Create(ctx context.Context, data *dto.CreateUserInput) (*string, error) {
-	user, errs := entity.CreateUser(
+	user, err := entity.CreateUser(
 		data.Username,
 		data.Password,
 		data.Email,
 		data.Name,
 	)
 
-	if errs != nil {
-		return nil, errors.New("could not insert user")
+	if err != nil {
+		return nil, err
 	}
 
 	result, err := service.Repository.Create(user)
 	if err != nil {
-		return nil, errors.New("could not save user")
+		return nil, err
 	}
 
 	return result, nil

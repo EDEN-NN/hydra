@@ -2,6 +2,7 @@ package entity
 
 import (
 	"errors"
+	"github.com/EDEN-NN/hydra-api/internal/apperrors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/url"
 	"time"
@@ -51,26 +52,25 @@ func CreateCompany(name, registryNumber, urlSite string, reputation Reputation) 
 	return company, nil
 }
 
-func (company *Company) IsValid() []error {
-	var errs []error
+func (company *Company) IsValid() error {
 
 	if len(company.Name) <= 5 {
-		errs = append(errs, errors.New("company's name should be greater than 5 characters"))
+		return apperrors.NewConflictError("name", errors.New("company name should have at least 6 characters"))
 	}
 
 	if len(company.RegistryNumber) != 14 {
-		errs = append(errs, errors.New("cnpj should be equal to 14 characters"))
+		return apperrors.NewConflictError("registry number", errors.New("invalid registry number"))
 	}
 
 	_, err := url.ParseRequestURI(company.UrlSite)
 	if err != nil {
-		errs = append(errs, errors.New("invalid url site"))
+		return apperrors.NewConflictError("site", errors.New("invalid url site"))
 	}
 
-	return errs
+	return nil
 }
 
-func (company *Company) ChangeName(name string) (*Company, []error) {
+func (company *Company) ChangeName(name string) (*Company, error) {
 	company.Name = name
 	company.UpdatedAt = time.Now()
 
@@ -82,7 +82,7 @@ func (company *Company) ChangeName(name string) (*Company, []error) {
 	return company, nil
 }
 
-func (company *Company) ChangeRegistryNumber(registryNumber string) (*Company, []error) {
+func (company *Company) ChangeRegistryNumber(registryNumber string) (*Company, error) {
 	company.RegistryNumber = registryNumber
 	company.UpdatedAt = time.Now()
 

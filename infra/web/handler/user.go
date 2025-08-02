@@ -16,15 +16,16 @@ func CreateUserHandler(service *service.UserService) *UserHandler {
 }
 
 func (handler *UserHandler) CreateUser(c *gin.Context) {
-	var input dto.CreateUserInput
-	if err := c.ShouldBindJSON(&input); err != nil {
+	var input = &dto.CreateUserInput{}
+	if err := c.ShouldBindJSON(input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid parameters: " + err.Error()})
 		return
 	}
 
-	result, err := handler.service.Create(c.Request.Context(), &input)
+	result, err := handler.service.Create(c.Request.Context(), input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "fail to create user: "})
+		c.Error(err)
+		return
 	}
 
 	c.JSON(http.StatusCreated, result)
