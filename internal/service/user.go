@@ -43,14 +43,45 @@ func (service *UserService) FindByUsername(username string) (*dto.UserOutput, er
 		return nil, err
 	}
 
-	userOutput := &dto.UserOutput{
-		ID:        user.ID.Hex(),
-		Username:  user.Username,
-		Email:     user.Email,
-		Name:      user.Name,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	}
+	userOutput := service.MapUserEntityToOutput(user)
 
 	return userOutput, nil
+}
+
+func (service *UserService) FindByID(id string) (*dto.UserOutput, error) {
+	user, err := service.Repository.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	userOutput := service.MapUserEntityToOutput(user)
+
+	return userOutput, nil
+}
+
+func (service *UserService) FindAll() ([]*dto.UserOutput, error) {
+	users, err := service.Repository.FindAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var usersOutput []*dto.UserOutput
+	for _, user := range users {
+		usersOutput = append(usersOutput, service.MapUserEntityToOutput(user))
+	}
+
+	return usersOutput, nil
+}
+
+func (service *UserService) MapUserEntityToOutput(entity *entity.User) *dto.UserOutput {
+	userOutput := &dto.UserOutput{
+		ID:        entity.ID.Hex(),
+		Username:  entity.Username,
+		Email:     entity.Email,
+		Name:      entity.Name,
+		CreatedAt: entity.CreatedAt,
+		UpdatedAt: entity.UpdatedAt,
+	}
+
+	return userOutput
 }

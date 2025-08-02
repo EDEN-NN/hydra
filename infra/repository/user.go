@@ -41,3 +41,35 @@ func (repository *UserRepository) FindByUsername(username string) (*entity.User,
 
 	return userEntity, nil
 }
+
+func (repository *UserRepository) FindByID(id string) (*entity.User, error) {
+	var userEntity = &entity.User{}
+	userId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, apperrors.NewError(apperrors.EINVALID, "invalid id", err)
+	}
+
+	err = repository.DB.Collection("users").
+		FindOne(context.Background(), bson.D{{"_id", userId}}).
+		Decode(userEntity)
+	if err != nil {
+		return nil, apperrors.NewError(apperrors.ENOTFOUND, "user not found", err)
+	}
+
+	return userEntity, nil
+}
+
+func (repository *UserRepository) FindAll() ([]*entity.User, error) {
+	var results []*entity.User
+	cursor, err := repository.DB.Collection("users").Find(context.Background(), bson.D{})
+	if err != nil {
+		return nil, apperrors.NewConflictError("users", err)
+	}
+
+	err = cursor.All(context.Background(), &results)
+	if err != nil {
+		return nil, apperrors.NewConflictError("users", err)
+	}
+
+	return results, nil
+}

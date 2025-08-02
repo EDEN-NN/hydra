@@ -15,6 +15,16 @@ func CreateUserHandler(service *service.UserService) *UserHandler {
 	return &UserHandler{service: service}
 }
 
+func (handler *UserHandler) FindAll(c *gin.Context) {
+	result, err := handler.service.FindAll()
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
 func (handler *UserHandler) CreateUser(c *gin.Context) {
 	var input = &dto.CreateUserInput{}
 	if err := c.ShouldBindJSON(input); err != nil {
@@ -43,6 +53,22 @@ func (handler *UserHandler) FindByUsername(c *gin.Context) {
 	username := body.Username
 
 	result, err := handler.service.FindByUsername(username)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+func (handler *UserHandler) FindByID(c *gin.Context) {
+	idFromParams := c.Param("id")
+	if &idFromParams == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid params"})
+		return
+	}
+
+	result, err := handler.service.FindByID(idFromParams)
 	if err != nil {
 		c.Error(err)
 		return
