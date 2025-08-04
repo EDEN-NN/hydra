@@ -59,6 +59,27 @@ func (repository *UserRepository) FindByID(id string) (*entity.User, error) {
 	return userEntity, nil
 }
 
+func (repository *UserRepository) FindByEmail(email string) (*entity.User, error) {
+	var entityUser = &entity.User{}
+	err := repository.DB.Collection("users").FindOne(context.Background(), bson.D{{"email", email}}).Decode(entityUser)
+	if err != nil {
+		return nil, apperrors.NewError(apperrors.ENOTFOUND, "user not found", err)
+	}
+
+	return entityUser, nil
+}
+
+func (repository *UserRepository) UpdateUser(user *entity.User) error {
+	filter := bson.M{"_id": user.ID}
+	update := bson.M{"$set": &user}
+	_, err := repository.DB.Collection("users").UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return apperrors.NewNotFoundError("user not found")
+	}
+
+	return nil
+}
+
 func (repository *UserRepository) FindAll() ([]*entity.User, error) {
 	var results []*entity.User
 	cursor, err := repository.DB.Collection("users").Find(context.Background(), bson.D{})

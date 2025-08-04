@@ -76,3 +76,47 @@ func (handler *UserHandler) FindByID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 }
+
+func (handler *UserHandler) FindByEmail(c *gin.Context) {
+	var body struct {
+		Email string `json:"email"`
+	}
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid params"})
+		return
+	}
+
+	result, err := handler.service.FindByEmail(body.Email)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+func (handler *UserHandler) UpdateName(c *gin.Context) {
+	idFromRequest := c.Param("id")
+	if &idFromRequest == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid params"})
+		return
+	}
+
+	var body struct {
+		Name string `json:"name"`
+	}
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"})
+		return
+	}
+
+	err := handler.service.ChangeName(body.Name, idFromRequest)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusAccepted, gin.H{"message": "name updated successfully"})
+}

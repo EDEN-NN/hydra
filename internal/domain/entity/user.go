@@ -61,17 +61,17 @@ func CreateUser(username, password, email, name string) (*User, error) {
 	return newUser, nil
 }
 
-func (user *User) ChangeName(name string) (*User, error) {
+func (user *User) ChangeName(name string) error {
 	user.Name = name
 	user.UpdatedAt = time.Now()
 
 	err := user.IsValid()
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return user, nil
+	return nil
 }
 
 func GenerateHashPassword(password string) (string, error) {

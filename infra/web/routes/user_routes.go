@@ -10,7 +10,9 @@ func SetupUserRoutes(router *gin.Engine, userHandler *handler.UserHandler) {
 	{
 		userRoutes.GET("/", userHandler.FindAll)
 		userRoutes.GET("/user", userHandler.FindByUsername)
+		userRoutes.GET("/email", userHandler.FindByEmail)
 		userRoutes.GET("/user/:id", userHandler.FindByID)
 		userRoutes.POST("/", userHandler.CreateUser)
+		userRoutes.POST("/user/change-name/:id", userHandler.UpdateName)
 	}
 }

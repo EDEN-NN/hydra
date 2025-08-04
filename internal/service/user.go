@@ -4,6 +4,8 @@ import (
 	"github.com/EDEN-NN/hydra-api/infra/repository"
 	"github.com/EDEN-NN/hydra-api/internal/domain/entity"
 	"github.com/EDEN-NN/hydra-api/pkg/dto"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
 )
 
 type UserService struct {
@@ -73,6 +75,36 @@ func (service *UserService) FindAll() ([]*dto.UserOutput, error) {
 	return usersOutput, nil
 }
 
+func (service *UserService) FindByEmail(email string) (*dto.UserOutput, error) {
+	user, err := service.Repository.FindByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+
+	userOutput := service.MapUserEntityToOutput(user)
+
+	return userOutput, nil
+}
+
+func (service *UserService) ChangeName(name string, id string) error {
+	userResult, err := service.Repository.FindByID(id)
+	if err != nil {
+		return err
+	}
+
+	err = userResult.ChangeName(name)
+	if err != nil {
+		return err
+	}
+
+	err = service.Repository.UpdateUser(userResult)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (service *UserService) MapUserEntityToOutput(entity *entity.User) *dto.UserOutput {
 	userOutput := &dto.UserOutput{
 		ID:        entity.ID.Hex(),
@@ -84,4 +116,17 @@ func (service *UserService) MapUserEntityToOutput(entity *entity.User) *dto.User
 	}
 
 	return userOutput
+}
+
+func (service *UserService) MapDtoOutputToEntity(output *dto.UserOutput) *entity.User {
+	id, _ := primitive.ObjectIDFromHex(output.ID)
+	userEntity := &entity.User{
+		ID:        id,
+		Username:  output.Username,
+		Name:      output.Name,
+		Email:     output.Email,
+		UpdatedAt: time.Now(),
+	}
+
+	return userEntity
 }

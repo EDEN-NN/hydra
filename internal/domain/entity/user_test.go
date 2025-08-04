@@ -18,7 +18,7 @@ func TestUser_IsValid(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, user)
 
-	_, err = user.ChangeName("za")
+	err = user.ChangeName("za")
 
 	assert.NotNil(t, err)
 }
