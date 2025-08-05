@@ -120,3 +120,29 @@ func (handler *UserHandler) UpdateName(c *gin.Context) {
 
 	c.JSON(http.StatusAccepted, gin.H{"message": "name updated successfully"})
 }
+
+func (handler *UserHandler) ChangeEmail(c *gin.Context) {
+	var idFromParam = c.Param("id")
+	if &idFromParam == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid params"})
+		return
+	}
+
+	var body struct {
+		Email string `json:"email"`
+	}
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"})
+		return
+	}
+
+	err := handler.service.ChangeEmail(body.Email, idFromParam)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusAccepted, gin.H{"message": "email changed successfully"})
+
+}

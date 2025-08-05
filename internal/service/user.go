@@ -105,6 +105,24 @@ func (service *UserService) ChangeName(name string, id string) error {
 	return nil
 }
 
+func (service *UserService) ChangeEmail(email string, id string) error {
+	userResult, err := service.Repository.FindByID(id)
+	if err != nil {
+		return err
+	}
+
+	err = userResult.ChangeEmail(email)
+	if err != nil {
+		return err
+	}
+
+	if err = service.Repository.UpdateUser(userResult); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (service *UserService) MapUserEntityToOutput(entity *entity.User) *dto.UserOutput {
 	userOutput := &dto.UserOutput{
 		ID:        entity.ID.Hex(),

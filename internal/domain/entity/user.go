@@ -74,6 +74,18 @@ func (user *User) ChangeName(name string) error {
 	return nil
 }
 
+func (user *User) ChangeEmail(email string) error {
+	user.Email = email
+	user.UpdatedAt = time.Now()
+
+	err := user.IsValid()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GenerateHashPassword(password string) (string, error) {
 	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
