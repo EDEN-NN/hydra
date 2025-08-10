@@ -18,6 +18,20 @@ func CreateUserService(repository *repository.UserRepository) *UserService {
 	}
 }
 
+func (service *UserService) ValidateLogin(username, password string) error {
+	user, err := service.Repository.FindByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	err = entity.CompareHash(password, user.Password)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (service *UserService) Create(data *dto.CreateUserInput) (*string, error) {
 	hashedPassword, _ := entity.GenerateHashPassword(data.Password)
 	user, err := entity.CreateUser(
@@ -145,6 +159,5 @@ func (service *UserService) MapDtoOutputToEntity(output *dto.UserOutput) *entity
 		Email:     output.Email,
 		UpdatedAt: time.Now(),
 	}
-
 	return userEntity
 }

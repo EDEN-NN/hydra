@@ -17,6 +17,7 @@ type Container struct {
 	AppConfig   *config.AppConfig
 	MongoDB     *mongo.Database
 	UserHandler *handler.UserHandler
+	AuthHandler *handler.AuthHandler
 	Router      *gin.Engine
 }
 
@@ -30,11 +31,14 @@ func NewContainer(ctx context.Context) (*Container, error) {
 
 	userRepo := repository.CreateUserRepository(db)
 	userService := service.CreateUserService(userRepo)
+	authService := service.CreateAuthService(userService)
 	userHandler := handler.CreateUserHandler(userService)
+	authHandler := handler.CreateAuthHandler(authService, userService)
 
 	router := gin.Default()
 	router.Use(middleware.ErrorHandler())
 	routes.SetupUserRoutes(router, userHandler)
+	routes.SetupAuthRoutes(router, authHandler)
 
 	return &Container{
 		AppConfig:   appConfig,
