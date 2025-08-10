@@ -98,7 +98,7 @@ func GenerateHashPassword(password string) (string, error) {
 func CompareHash(password, hashedPassword string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	if err != nil {
-		return apperrors.NewConflictError("user", apperrors.NewError(apperrors.ECONFLICT, "username or password invalid", err))
+		return apperrors.NewError(apperrors.EINVALID, "username or password incorrect", err)
 	}
 	return nil
 }
