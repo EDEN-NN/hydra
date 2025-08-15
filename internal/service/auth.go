@@ -2,10 +2,11 @@ package service
 
 import (
 	"errors"
-	"github.com/EDEN-NN/hydra-api/internal/apperrors"
-	"github.com/golang-jwt/jwt/v4"
 	"os"
 	"time"
+
+	"github.com/EDEN-NN/hydra-api/internal/apperrors"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type AuthService struct {
@@ -39,18 +40,22 @@ func (service *AuthService) CreateToken(body *AuthValidate) (string, error) {
 	return tokenString, nil
 }
 
-func (service *AuthService) VerifyToken(tokenString string) error {
+func (service *AuthService) VerifyToken(tokenString string) (jwt.Claims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return secret, nil
 	})
 
 	if err != nil {
-		return apperrors.NewConflictError("auth", err)
+		return nil, apperrors.NewConflictError("auth", err)
 	}
 
 	if !token.Valid {
-		return apperrors.NewError(apperrors.EINVALID, "invalid token", errors.New("token given is not valid"))
+		return nil, apperrors.NewError(apperrors.EINVALID, "invalid token", errors.New("token given is not valid"))
 	}
 
-	return nil
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, apperrors.NewError(apperrors.EINVALID, "invalid claims", errors.New("could not parse claims"))
+	}
+	return claims, nil
 }

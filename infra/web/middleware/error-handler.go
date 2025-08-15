@@ -29,7 +29,6 @@ func ErrorHandler() gin.HandlerFunc {
 	}
 }
 
-
 func errorToHTTPStatus(code apperrors.ErrorCode) int {
 	switch code {
 	case apperrors.ENOTFOUND:

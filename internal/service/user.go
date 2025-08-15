@@ -44,7 +44,7 @@ func (service *UserService) Create(data *dto.CreateUserInput) (*string, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	
 	result, err := service.Repository.Create(user)
 	if err != nil {
 		return nil, err

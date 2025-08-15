@@ -2,6 +2,7 @@ package di
 
 import (
 	"context"
+
 	"github.com/EDEN-NN/hydra-api/infra/config"
 	"github.com/EDEN-NN/hydra-api/infra/database/mongodb"
 	"github.com/EDEN-NN/hydra-api/infra/repository"
@@ -36,7 +37,10 @@ func NewContainer(ctx context.Context) (*Container, error) {
 	authHandler := handler.CreateAuthHandler(authService, userService)
 
 	router := gin.Default()
+	router.POST("/login", authHandler.Login)
+	router.POST("/user", userHandler.CreateUser)
 	router.Use(middleware.ErrorHandler())
+	router.Use(middleware.HandleAuth(authService))
 	routes.SetupUserRoutes(router, userHandler)
 	routes.SetupAuthRoutes(router, authHandler)
 
