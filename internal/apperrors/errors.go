@@ -35,9 +35,9 @@ func NewError(code ErrorCode, message string, err error) *AppError {
 }
 
 func NewConflictError(entity string, err error) *AppError {
-	return NewError(ECONFLICT, fmt.Sprintf("%s already exists", entity), err)
+	return NewError(ECONFLICT, fmt.Sprintf("%s field error", entity), err)
 }
 
 func NewNotFoundError(entity string) *AppError {
-	return NewError(ENOTFOUND, fmt.Sprintf("%s not found", entity), nil)
+	return NewError(ENOTFOUND, fmt.Sprintf("%s entity or field not found", entity), nil)
 }

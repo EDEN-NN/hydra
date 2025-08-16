@@ -1,9 +1,10 @@
 package middleware
 
 import (
+	"net/http"
+
 	"github.com/EDEN-NN/hydra-api/internal/apperrors"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func ErrorHandler() gin.HandlerFunc {

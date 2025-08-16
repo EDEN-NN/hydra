@@ -37,6 +37,7 @@ type Company struct {
 }
 
 func CreateCompany(name, registryNumber, urlSite string, reputation Reputation) (*Company, error) {
+
 	company := &Company{
 		ID:             primitive.NewObjectID(),
 		Name:           name,
@@ -65,6 +66,19 @@ func (company *Company) IsValid() error {
 
 	if len(company.RegistryNumber) != 14 {
 		return apperrors.NewConflictError("registry number", errors.New("invalid registry number"))
+	}
+
+	validReputations := map[Reputation]bool{
+		NO_INDEX:        true,
+		NOT_RECOMMENDED: true,
+		BAD:             true,
+		REGULAR:         true,
+		GOOD:            true,
+		EXCELLENT:       true,
+	}
+
+	if !validReputations[company.Reputation] {
+		return apperrors.NewConflictError("reputation", errors.New("invalid reputation value"))
 	}
 
 	return nil
