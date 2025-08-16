@@ -2,12 +2,13 @@ package repository
 
 import (
 	"context"
+	"log"
+
 	"github.com/EDEN-NN/hydra-api/internal/apperrors"
 	"github.com/EDEN-NN/hydra-api/internal/domain/entity"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
 )
 
 type UserRepository struct {
@@ -20,21 +21,23 @@ func CreateUserRepository(db *mongo.Database) *UserRepository {
 	}
 }
 
-func (repository *UserRepository) Create(data *entity.User) (*string, error) {
+func (repository *UserRepository) Create(data *entity.User) (string, error) {
 	result, err := repository.DB.Collection("users").InsertOne(context.Background(), &data)
 	if err != nil {
-		return nil, apperrors.NewError(apperrors.EINVALID, "fail to insert a new user", err)
+		return "", apperrors.NewError(apperrors.EINVALID, "fail to insert a new user", err)
 	}
 
 	userID := result.InsertedID.(primitive.ObjectID).Hex()
 	log.Printf("new document inserted: %s", result.InsertedID)
 
-	return &userID, nil
+	return userID, nil
 }
 
 func (repository *UserRepository) FindByUsername(username string) (*entity.User, error) {
 	var userEntity = &entity.User{}
-	err := repository.DB.Collection("users").FindOne(context.Background(), bson.D{{"username", username}}).Decode(userEntity)
+	err := repository.DB.Collection("users").
+		FindOne(context.Background(), bson.D{{Key: "username", Value: username}}).
+		Decode(userEntity)
 	if err != nil {
 		return nil, apperrors.NewError(apperrors.EINVALID, "error searching for user", err)
 	}
@@ -50,7 +53,7 @@ func (repository *UserRepository) FindByID(id string) (*entity.User, error) {
 	}
 
 	err = repository.DB.Collection("users").
-		FindOne(context.Background(), bson.D{{"_id", userId}}).
+		FindOne(context.Background(), bson.D{{Key: "_id", Value: userId}}).
 		Decode(userEntity)
 	if err != nil {
 		return nil, apperrors.NewError(apperrors.ENOTFOUND, "user not found", err)
@@ -61,7 +64,9 @@ func (repository *UserRepository) FindByID(id string) (*entity.User, error) {
 
 func (repository *UserRepository) FindByEmail(email string) (*entity.User, error) {
 	var entityUser = &entity.User{}
-	err := repository.DB.Collection("users").FindOne(context.Background(), bson.D{{"email", email}}).Decode(entityUser)
+	err := repository.DB.Collection("users").
+		FindOne(context.Background(), bson.D{{Key: "email", Value: email}}).
+		Decode(entityUser)
 	if err != nil {
 		return nil, apperrors.NewError(apperrors.ENOTFOUND, "user not found", err)
 	}

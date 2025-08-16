@@ -45,7 +45,7 @@ func TestCompany_ChangeName(t *testing.T) {
 
 	for _, tt := range tests {
 		companyOldName := company.Name
-		_, err := company.ChangeName(tt.name)
+		err := company.ChangeName(tt.name)
 		if (err != nil) != tt.wantErr {
 			t.Errorf("ChangeName(%v), err: %v, wantErr: %v", tt, err, tt.wantErr)
 		}
@@ -82,7 +82,7 @@ func TestCompany_ChangeRegistryNumber(t *testing.T) {
 
 	for _, tt := range tests {
 		oldRegistryNumber := company.RegistryNumber
-		_, err := company.ChangeRegistryNumber(tt.registryNumber)
+		err := company.ChangeRegistryNumber(tt.registryNumber)
 		if (err != nil) != tt.wantErr {
 			t.Errorf("ChangeRegistryNumber(%v), err: %v, wantErr: %v", tt, err, tt.wantErr)
 		}

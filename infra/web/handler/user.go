@@ -1,10 +1,11 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/EDEN-NN/hydra-api/internal/service"
 	"github.com/EDEN-NN/hydra-api/pkg/dto"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type UserHandler struct {
@@ -98,7 +99,7 @@ func (handler *UserHandler) FindByEmail(c *gin.Context) {
 
 func (handler *UserHandler) UpdateName(c *gin.Context) {
 	idFromRequest := c.Param("id")
-	if &idFromRequest == nil {
+	if idFromRequest == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid params"})
 		return
 	}
@@ -123,7 +124,7 @@ func (handler *UserHandler) UpdateName(c *gin.Context) {
 
 func (handler *UserHandler) ChangeEmail(c *gin.Context) {
 	var idFromParam = c.Param("id")
-	if &idFromParam == nil {
+	if idFromParam == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid params"})
 		return
 	}

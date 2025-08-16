@@ -30,10 +30,13 @@ func NewContainer(ctx context.Context) (*Container, error) {
 		return nil, err
 	}
 
+	companyRepo := repository.CreateCompanyRepository(db)
 	userRepo := repository.CreateUserRepository(db)
 	userService := service.CreateUserService(userRepo)
+	companyService := service.CreateCompanyService(companyRepo)
 	authService := service.CreateAuthService(userService)
 	userHandler := handler.CreateUserHandler(userService)
+	companyHandler := handler.CreateCompanyHandler(companyService)
 	authHandler := handler.CreateAuthHandler(authService, userService)
 
 	router := gin.Default()
@@ -43,6 +46,7 @@ func NewContainer(ctx context.Context) (*Container, error) {
 	router.Use(middleware.HandleAuth(authService))
 	routes.SetupUserRoutes(router, userHandler)
 	routes.SetupAuthRoutes(router, authHandler)
+	routes.SetupCompanyRoutes(router, companyHandler)
 
 	return &Container{
 		AppConfig:   appConfig,

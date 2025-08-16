@@ -1,11 +1,12 @@
 package service
 
 import (
+	"time"
+
 	"github.com/EDEN-NN/hydra-api/infra/repository"
 	"github.com/EDEN-NN/hydra-api/internal/domain/entity"
 	"github.com/EDEN-NN/hydra-api/pkg/dto"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"time"
 )
 
 type UserService struct {
@@ -32,7 +33,7 @@ func (service *UserService) ValidateLogin(username, password string) error {
 	return nil
 }
 
-func (service *UserService) Create(data *dto.CreateUserInput) (*string, error) {
+func (service *UserService) Create(data *dto.CreateUserInput) (string, error) {
 	hashedPassword, _ := entity.GenerateHashPassword(data.Password)
 	user, err := entity.CreateUser(
 		data.Username,
@@ -42,12 +43,12 @@ func (service *UserService) Create(data *dto.CreateUserInput) (*string, error) {
 	)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	
+
 	result, err := service.Repository.Create(user)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	return result, nil

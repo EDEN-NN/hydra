@@ -70,33 +70,38 @@ func (company *Company) IsValid() error {
 	return nil
 }
 
-func (company *Company) ChangeName(name string) (*Company, error) {
+func (company *Company) ChangeName(name string) error {
 	company.Name = name
 	company.UpdatedAt = time.Now()
 
 	err := company.IsValid()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return company, nil
+	return nil
 }
 
-func (company *Company) ChangeRegistryNumber(registryNumber string) (*Company, error) {
+func (company *Company) ChangeRegistryNumber(registryNumber string) error {
 	company.RegistryNumber = registryNumber
 	company.UpdatedAt = time.Now()
 
 	err := company.IsValid()
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return company, nil
+	return nil
 }
 
 func (company *Company) ActiveProduct() {
 	company.HasProduct = true
+	company.UpdatedAt = time.Now()
+}
+
+func (company *Company) DeactiveProduct() {
+	company.HasProduct = false
 	company.UpdatedAt = time.Now()
 }
 
