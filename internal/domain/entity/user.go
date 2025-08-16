@@ -2,11 +2,12 @@ package entity
 
 import (
 	"errors"
+	"net/mail"
+	"time"
+
 	"github.com/EDEN-NN/hydra-api/internal/apperrors"
 	primitive "go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
-	"net/mail"
-	"time"
 )
 
 type User struct {
@@ -36,7 +37,7 @@ func (user *User) IsValid() error {
 	_, err := mail.ParseAddress(user.Email)
 
 	if err != nil {
-		apperrors.NewConflictError("email", errors.New("invalid email format"))
+		return apperrors.NewConflictError("email", errors.New("invalid email format"))
 	}
 	return nil
 }

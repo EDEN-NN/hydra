@@ -2,10 +2,10 @@ package entity
 
 import (
 	"errors"
+	"time"
+
 	"github.com/EDEN-NN/hydra-api/internal/apperrors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"net/url"
-	"time"
 )
 
 type BiometryStatus string
@@ -29,7 +29,7 @@ type Company struct {
 	Name           string             `json:"name" bson:"name"`
 	RegistryNumber string             `json:"registryNumber" bson:"registryNumber"`
 	Biometry       BiometryStatus     `json:"biometry" bson:"biometry"`
-	HasRav         bool               `json:"hasRav" bson:"hasRav"`
+	HasProduct     bool               `json:"hasProduct" bson:"hasProduct"`
 	Reputation     Reputation         `json:"reputation" bson:"reputation"`
 	UrlSite        string             `json:"urlSite" bson:"urlSite"`
 	CreatedAt      time.Time          `json:"createdAt" bson:"createdAt"`
@@ -42,11 +42,16 @@ func CreateCompany(name, registryNumber, urlSite string, reputation Reputation) 
 		Name:           name,
 		RegistryNumber: registryNumber,
 		Biometry:       WAITING,
-		HasRav:         false,
+		HasProduct:     false,
 		Reputation:     reputation,
 		UrlSite:        urlSite,
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
+	}
+
+	err := company.IsValid()
+	if err != nil {
+		return nil, err
 	}
 
 	return company, nil
@@ -60,11 +65,6 @@ func (company *Company) IsValid() error {
 
 	if len(company.RegistryNumber) != 14 {
 		return apperrors.NewConflictError("registry number", errors.New("invalid registry number"))
-	}
-
-	_, err := url.ParseRequestURI(company.UrlSite)
-	if err != nil {
-		return apperrors.NewConflictError("site", errors.New("invalid url site"))
 	}
 
 	return nil
@@ -96,7 +96,7 @@ func (company *Company) ChangeRegistryNumber(registryNumber string) (*Company, e
 }
 
 func (company *Company) ActiveProduct() {
-	company.HasRav = true
+	company.HasProduct = true
 	company.UpdatedAt = time.Now()
 }
 

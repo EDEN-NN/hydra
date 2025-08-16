@@ -1,93 +1,97 @@
 package entity
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // 13.114.403/0001-03
-
 func TestCreateCompany(t *testing.T) {
-	company, err := CreateCompany("Zaludo Gadelhudo LTDA", "13114403000103", "http://reclameaqui.com.br", "GOOD")
+	tests := []struct {
+		name           string
+		registryNumber string
+		reputation     Reputation
+		urlSite        string
+		wantErr        bool
+	}{
+		{"Empresa de teste LTDA", "13114403000103", "https://github.com.br", "GOOD", false},
+		{"Empr", "13114403000103", "http://ifood.com.br", "NOT_RECOMMENDED", true},
+		{"Empresa de teste LTDA", "13103000103", "http://uber.com.br", "REGULAR", true},
+	}
 
-	assert.Nil(t, err)
-	assert.NotNil(t, company)
+	for _, tt := range tests {
+		_, err := CreateCompany(tt.name, tt.registryNumber, tt.urlSite, tt.reputation)
+		if (err != nil) != tt.wantErr {
+			t.Errorf("CreateCompany(%v), err: %v, wantErr: %v", tt, err, tt.wantErr)
+		}
+	}
 }
 
 func TestCompany_ChangeName(t *testing.T) {
-	company, err := CreateCompany("Zaludo Gadelhudo LTDA", "13114403000103", "http://reclameaqui.com.br", "GOOD")
+	company, err := CreateCompany("Empresa de teste LTDA", "13114403000103", "https://github.com.br", "GOOD")
 
 	assert.Nil(t, err)
 	assert.NotNil(t, company)
 
-	companyOldName := company.Name
+	tests := []struct {
+		name    string
+		wantErr bool
+	}{
+		{"Empresa de Sociedade Anonima LTDA", false},
+		{"Emp", true},
+		{"", true},
+	}
 
-	company.ChangeName("Zalíssimo Gadders dos Santos LTDA")
+	for _, tt := range tests {
+		companyOldName := company.Name
+		_, err := company.ChangeName(tt.name)
+		if (err != nil) != tt.wantErr {
+			t.Errorf("ChangeName(%v), err: %v, wantErr: %v", tt, err, tt.wantErr)
+		}
+		assert.NotEqual(t, companyOldName, company.Name)
+	}
 
-	assert.NotEqual(t, companyOldName, company.Name)
-}
-
-func TestCompany_ChangeNameFailWhenHasLessThan5Characters(t *testing.T) {
-	company, err := CreateCompany("Zaludo Gadelhudo LTDA", "13114403000103", "http://reclameaqui.com.br", "GOOD")
-
-	assert.Nil(t, err)
-	assert.NotNil(t, company)
-
-	_, errs := company.ChangeName("Zalí")
-
-	assert.NotNil(t, errs)
 }
 
 func TestCompany_ActiveProduct(t *testing.T) {
-	company, err := CreateCompany("Zaludo Gadelhudo LTDA", "13114403000103", "http://reclameaqui.com.br", "GOOD")
+	company, _ := CreateCompany("Empresa de teste LTDA", "13114403000103", "https://github.com.br", "GOOD")
 
-	assert.Nil(t, err)
-	assert.NotNil(t, company)
-
-	oldProductStatus := company.HasRav
+	oldProductStatus := company.HasProduct
 
 	company.ActiveProduct()
-
-	assert.NotEqual(t, oldProductStatus, company.HasRav)
+	assert.False(t, oldProductStatus)
+	assert.NotEqual(t, oldProductStatus, company.HasProduct)
+	assert.True(t, company.HasProduct)
 }
 
 func TestCompany_ChangeRegistryNumber(t *testing.T) {
-	company, err := CreateCompany("Zaludo Gadelhudo LTDA", "13114403000103", "http://reclameaqui.com.br", "GOOD")
+	company, err := CreateCompany("Empresa de teste LTDA", "13114403000103", "https://github.com.br", "GOOD")
 
 	assert.Nil(t, err)
 	assert.NotNil(t, company)
 
-	oldRegistryNumber := company.RegistryNumber
+	tests := []struct {
+		registryNumber string
+		wantErr        bool
+	}{
+		{"13114403000104", false},
+		{"1311440304", true},
+		{"131144030001042432321213213", true},
+	}
 
-	company.ChangeRegistryNumber("13114403000104")
-
-	assert.NotEqual(t, oldRegistryNumber, company.RegistryNumber)
-}
-
-func TestCompany_ChangeRegistryNumberFailWhenRegistryNumberHasLessThan14Characters(t *testing.T) {
-	company, err := CreateCompany("Zaludo Gadelhudo LTDA", "13114403000103", "http://reclameaqui.com.br", "GOOD")
-
-	assert.Nil(t, err)
-	assert.NotNil(t, company)
-
-	_, errs := company.ChangeRegistryNumber("1170707070")
-
-	assert.NotNil(t, errs)
-}
-
-func TestCompany_ChangeRegistryNumberFailWhenRegistryNumberHasMoreThan14Characters(t *testing.T) {
-	company, err := CreateCompany("Zaludo Gadelhudo LTDA", "13114403000103", "http://reclameaqui.com.br", "GOOD")
-
-	assert.Nil(t, err)
-	assert.NotNil(t, company)
-
-	_, errs := company.ChangeRegistryNumber("131144030001031032746343")
-
-	assert.NotNil(t, errs)
+	for _, tt := range tests {
+		oldRegistryNumber := company.RegistryNumber
+		_, err := company.ChangeRegistryNumber(tt.registryNumber)
+		if (err != nil) != tt.wantErr {
+			t.Errorf("ChangeRegistryNumber(%v), err: %v, wantErr: %v", tt, err, tt.wantErr)
+		}
+		assert.NotEqual(t, oldRegistryNumber, company.RegistryNumber)
+	}
 }
 
 func TestCompany_UpdatedBiometryStatus(t *testing.T) {
-	company, err := CreateCompany("Zaludo Gadelhudo LTDA", "13114403000103", "http://reclameaqui.com.br", "GOOD")
+	company, err := CreateCompany("Empresa de teste LTDA", "13114403000103", "https://github.com.br", "GOOD")
 
 	assert.Nil(t, err)
 	assert.NotNil(t, company)

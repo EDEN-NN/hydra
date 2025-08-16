@@ -1,24 +1,28 @@
 package entity
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestCreateUser(t *testing.T) {
-	user, err := CreateUser("zalison", "gadelhoscaralho", "gadders@gmail.com", "Vitorio")
+	tests := []struct {
+		username string
+		password string
+		email    string
+		name     string
+		wantErr  bool
+	}{
+		{"osvaldinho", "osvaldo123", "osvaldo@gmail.com", "Osvaldo Nunes", false},
+		{"os", "osvaldo123", "osvaldo@gmail.com", "Osvaldo Nunes", true},
+		{"osvaldinho", "senha", "osvaldo@gmail.com", "Osvaldo Nunes", true},
+		{"osvaldinho", "osvaldo123", "osvaldomail.com", "Osvaldo Nunes", true},
+		{"osvaldinho", "osvaldo123", "osvaldo@gmail.com", "Os", true},
+	}
 
-	assert.Nil(t, err)
-	assert.NotNil(t, user)
-}
-
-func TestUser_IsValid(t *testing.T) {
-	user, err := CreateUser("zalison", "gadelhoscaralho", "gadders@gmail.com", "Vitorio")
-
-	assert.Nil(t, err)
-	assert.NotNil(t, user)
-
-	err = user.ChangeName("za")
-
-	assert.NotNil(t, err)
+	for _, tt := range tests {
+		_, err := CreateUser(tt.username, tt.password, tt.email, tt.name)
+		if (err != nil) != tt.wantErr {
+			t.Errorf("CreateUser(%v) error = %v, wantErr %v", tt, err, tt.wantErr)
+		}
+	}
 }

@@ -1,12 +1,13 @@
 package entity
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCompanyVerification_TestCreateCompanyVerification(t *testing.T) {
-	company, _ := CreateCompany("Zaludo Gadelhudo LTDA", "13114403000103", "http://reclameaqui.com.br", "GOOD")
+	company, _ := CreateCompany("Empresa de teste LTDA", "13114403000103", "https://github.com.br", "GOOD")
 
 	companyVerification := CreateCompanyVerification(company.ID.String())
 
